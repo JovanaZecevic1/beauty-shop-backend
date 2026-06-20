@@ -1,6 +1,8 @@
 package com.beautyshop.backend.model;
+
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -19,6 +21,6 @@ public class Routine {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL)
-    private List<RoutineItem> items;
+    @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoutineItem> items = new ArrayList<>();
 }

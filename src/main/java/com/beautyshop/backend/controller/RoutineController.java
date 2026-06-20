@@ -61,4 +61,11 @@ public class RoutineController {
         routineService.deleteRoutine(routineId);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{routineId}")
+    public ResponseEntity<RoutineDTO> updateRoutine(
+            @PathVariable Long routineId,
+            @RequestParam String name) {
+        return ResponseEntity.ok(routineService.updateRoutine(routineId, name));
+    }
 }

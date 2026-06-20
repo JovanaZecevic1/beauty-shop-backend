@@ -31,10 +31,20 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.createReview(user.getId(), dto));
     }
 
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ReviewDTO> updateReview(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long id,
+            @RequestBody ReviewDTO dto) {
+        return ResponseEntity.ok(reviewService.updateReview(user.getId(), id, dto));
+    }
+
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
-        reviewService.deleteReview(id);
+    public ResponseEntity<Void> deleteReview(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long id) {
+        reviewService.deleteReview(user.getId(), id);
         return ResponseEntity.ok().build();
     }
 }

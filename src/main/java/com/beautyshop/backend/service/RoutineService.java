@@ -73,6 +73,14 @@ public class RoutineService {
         });
     }
 
+    public RoutineDTO updateRoutine(Long routineId, String name) {
+        Routine routine = routineRepository.findById(routineId)
+                .orElseThrow(() -> new RuntimeException("Routine not found"));
+        routine.setName(name);
+        routine.getItems().clear();
+        return toDTO(routineRepository.save(routine));
+    }
+
     private RoutineDTO toDTO(Routine routine) {
         RoutineDTO dto = new RoutineDTO();
         dto.setId(routine.getId());
@@ -95,4 +103,5 @@ public class RoutineService {
         dto.setStepOrder(item.getStepOrder());
         return dto;
     }
+
 }

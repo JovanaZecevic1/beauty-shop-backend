@@ -31,6 +31,12 @@ public class ReviewService {
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        // Provera da li korisnik već ima review za ovaj proizvod
+        boolean alreadyReviewed = reviewRepository.existsByUserIdAndProductId(userId, dto.getProductId());
+        if (alreadyReviewed) {
+            throw new RuntimeException("You have already reviewed this product");
+        }
+
         Review review = new Review();
         review.setUser(user);
         review.setProduct(product);
@@ -55,5 +61,30 @@ public class ReviewService {
         dto.setComment(review.getComment());
         dto.setCreatedAt(review.getCreatedAt());
         return dto;
+    }
+
+    public ReviewDTO updateReview(Long userId, Long reviewId, ReviewDTO dto) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        if (!review.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Not authorized");
+        }
+
+        review.setRating(dto.getRating());
+        review.setComment(dto.getComment());
+
+        return toDTO(reviewRepository.save(review));
+    }
+
+    public void deleteReview(Long userId, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        if (!review.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Not authorized");
+        }
+
+        reviewRepository.deleteById(reviewId);
     }
 }
