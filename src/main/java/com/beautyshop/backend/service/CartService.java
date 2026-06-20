@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Collectors;import jakarta.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -84,11 +84,11 @@ public class CartService {
         cartItemRepository.delete(cartItem);
         return toDTO(cartRepository.findByUserId(userId).get());
     }
-
+    @Transactional
     public void clearCart(Long userId) {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
-        cartItemRepository.deleteAll(cart.getItems());
+        cartItemRepository.deleteAllByCartId(cart.getId());
     }
 
     private Cart createCart(Long userId) {
