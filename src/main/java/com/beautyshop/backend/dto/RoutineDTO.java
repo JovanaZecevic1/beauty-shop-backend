@@ -8,5 +8,6 @@ public class RoutineDTO {
 
     private Long id;
     private String name;
+    private String routineType;
     private List<RoutineItemDTO> items;
 }

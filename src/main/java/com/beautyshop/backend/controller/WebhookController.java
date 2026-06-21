@@ -7,8 +7,9 @@ import com.beautyshop.backend.repository.OrderRepository;
 import com.beautyshop.backend.repository.TransactionRepository;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
-import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class WebhookController {
     private final OrderRepository orderRepository;
     private final TransactionRepository transactionRepository;
 
-    @PostMapping
+    @PostMapping("/stripe")
     public ResponseEntity<String> handleWebhook(
             @RequestBody String payload,
             @RequestHeader("Stripe-Signature") String sigHeader) {
@@ -40,37 +41,43 @@ public class WebhookController {
             return ResponseEntity.badRequest().body("Invalid signature");
         }
 
+        System.out.println("Webhook event type: " + event.getType());
+
         if ("checkout.session.completed".equals(event.getType())) {
-            Session session = (Session) event.getDataObjectDeserializer()
-                    .getObject()
-                    .orElse(null);
+            try {
+                JsonObject session = JsonParser.parseString(payload)
+                        .getAsJsonObject()
+                        .getAsJsonObject("data")
+                        .getAsJsonObject("object");
 
-            if (session != null) {
-                String orderIdStr = session.getMetadata().get("orderId");
+                JsonObject metadata = session.getAsJsonObject("metadata");
+                String orderIdStr = metadata.get("orderId").getAsString();
+                System.out.println("Order ID: " + orderIdStr);
+
                 Long orderId = Long.parseLong(orderIdStr);
-
                 Order order = orderRepository.findById(orderId).orElse(null);
 
                 if (order != null) {
                     order.setStatus(OrderStatus.PAID);
-                    order.setStripePaymentId(session.getId());
+                    order.setStripePaymentId(session.get("id").getAsString());
                     orderRepository.save(order);
-
-                    order.getItems().forEach(item -> {
-                        item.getProduct().setQuantity(
-                                item.getProduct().getQuantity() - item.getQuantity()
-                        );
-                    });
+                    System.out.println("Order " + orderId + " PAID!");
 
                     Transaction transaction = new Transaction();
                     transaction.setOrder(order);
                     transaction.setStripeEventId(event.getId());
-                    transaction.setAmount(BigDecimal.valueOf(session.getAmountTotal())
+                    transaction.setAmount(BigDecimal.valueOf(
+                                    session.get("amount_total").getAsLong())
                             .divide(BigDecimal.valueOf(100)));
-                    transaction.setCurrency(session.getCurrency());
+                    transaction.setCurrency(session.get("currency").getAsString());
                     transaction.setStatus("COMPLETED");
                     transactionRepository.save(transaction);
+                } else {
+                    System.out.println("Order not found: " + orderId);
                 }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+                e.printStackTrace();
             }
         }
 

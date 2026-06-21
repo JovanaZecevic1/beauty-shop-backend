@@ -64,9 +64,14 @@ public class ProductService {
         product.setPrice(dto.getPrice());
         product.setQuantity(dto.getQuantity());
         product.setImageUrl(dto.getImageUrl());
+        product.setImageUrl2(dto.getImageUrl2());
+        product.setImageUrl3(dto.getImageUrl3());
         product.setBrand(dto.getBrand());
         product.setSkinType(dto.getSkinType());
         product.setActive(dto.isActive());
+        if (dto.getSalesCount() != null) {
+            product.setSalesCount(dto.getSalesCount());
+        }
 
         if (dto.getCategoryId() != null) {
             Category category = categoryRepository.findById(dto.getCategoryId())
@@ -85,9 +90,12 @@ public class ProductService {
         dto.setPrice(product.getPrice());
         dto.setQuantity(product.getQuantity());
         dto.setImageUrl(product.getImageUrl());
+        dto.setImageUrl2(product.getImageUrl2());
+        dto.setImageUrl3(product.getImageUrl3());
         dto.setBrand(product.getBrand());
         dto.setSkinType(product.getSkinType());
         dto.setActive(product.isActive());
+        dto.setSalesCount(product.getSalesCount());
 
         if (product.getCategory() != null) {
             dto.setCategoryId(product.getCategory().getId());

@@ -21,6 +21,9 @@ public class Routine {
     @Column(nullable = false)
     private String name;
 
+    @Column
+    private String routineType = "Morning";
+
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoutineItem> items = new ArrayList<>();
 }

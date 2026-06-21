@@ -20,7 +20,6 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:4200")
 public class StripeController {
 
-
     private final StripeService stripeService;
     private final OrderService orderService;
 
@@ -36,6 +35,11 @@ public class StripeController {
                     .longValue();
 
             Session session = stripeService.createCheckoutSession(orderId, amount, "eur");
+
+            // Sacuvaj payment intent ID na orderu
+            if (session.getPaymentIntent() != null) {
+                orderService.updateStripePaymentId(orderId, session.getPaymentIntent());
+            }
 
             Map<String, String> response = new HashMap<>();
             response.put("sessionId", session.getId());

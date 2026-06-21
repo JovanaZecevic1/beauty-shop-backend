@@ -13,9 +13,12 @@ public class ProductDTO {
     private BigDecimal price;
     private Integer quantity;
     private String imageUrl;
+    private String imageUrl2;
+    private String imageUrl3;
     private String brand;
     private SkinType skinType;
     private Long categoryId;
     private String categoryName;
     private boolean active;
+    private Integer salesCount;
 }

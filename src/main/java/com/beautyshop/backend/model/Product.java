@@ -24,6 +24,15 @@ public class Product {
 
     private String imageUrl;
 
+    @Column(name = "image_url_2")
+    private String imageUrl2;
+
+    @Column(name = "image_url_3")
+    private String imageUrl3;
+
+    @Column(name = "sales_count", nullable = false)
+    private Integer salesCount = 0;
+
     private String brand;
 
     @Enumerated(EnumType.STRING)
@@ -34,4 +43,6 @@ public class Product {
     private Category category;
 
     private boolean active = true;
+
+
 }

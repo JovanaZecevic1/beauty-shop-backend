@@ -27,14 +27,13 @@ public class RoutineService {
                 .collect(Collectors.toList());
     }
 
-    public RoutineDTO createRoutine(Long userId, String name) {
+    public RoutineDTO createRoutine(Long userId, String name, String routineType) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         Routine routine = new Routine();
         routine.setUser(user);
         routine.setName(name);
-
+        routine.setRoutineType(routineType != null ? routineType : "Morning");
         return toDTO(routineRepository.save(routine));
     }
 
@@ -73,10 +72,11 @@ public class RoutineService {
         });
     }
 
-    public RoutineDTO updateRoutine(Long routineId, String name) {
+    public RoutineDTO updateRoutine(Long routineId, String name, String routineType) {
         Routine routine = routineRepository.findById(routineId)
                 .orElseThrow(() -> new RuntimeException("Routine not found"));
         routine.setName(name);
+        if (routineType != null) routine.setRoutineType(routineType);
         routine.getItems().clear();
         return toDTO(routineRepository.save(routine));
     }
@@ -85,6 +85,7 @@ public class RoutineService {
         RoutineDTO dto = new RoutineDTO();
         dto.setId(routine.getId());
         dto.setName(routine.getName());
+        dto.setRoutineType(routine.getRoutineType());
 
         List<RoutineItemDTO> items = routine.getItems().stream()
                 .map(this::toItemDTO)
@@ -103,5 +104,4 @@ public class RoutineService {
         dto.setStepOrder(item.getStepOrder());
         return dto;
     }
-
 }

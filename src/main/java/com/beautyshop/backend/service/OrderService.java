@@ -4,6 +4,7 @@ import com.beautyshop.backend.dto.OrderDTO;
 import com.beautyshop.backend.dto.OrderItemDTO;
 import com.beautyshop.backend.model.*;
 import com.beautyshop.backend.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class OrderService {
         return toDTO(order);
     }
 
+    @Transactional
     public OrderDTO createOrderFromCart(Long userId, String shippingAddress) {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
@@ -70,6 +72,12 @@ public class OrderService {
 
         order.setItems(orderItems);
         order.setTotalPrice(totalPrice);
+
+        orderItems.forEach(orderItem -> {
+            Product product = orderItem.getProduct();
+            product.setQuantity(product.getQuantity() - orderItem.getQuantity());
+            productRepository.save(product);
+        });
 
         Order savedOrder = orderRepository.save(order);
         cartItemRepository.deleteAll(cart.getItems());
@@ -110,6 +118,8 @@ public class OrderService {
             itemDTO.setId(item.getId());
             itemDTO.setProductId(item.getProduct().getId());
             itemDTO.setProductName(item.getProduct().getName());
+            itemDTO.setBrand(item.getProduct().getBrand());
+            itemDTO.setProductImage(item.getProduct().getImageUrl());
             itemDTO.setQuantity(item.getQuantity());
             itemDTO.setPriceAtPurchase(item.getPriceAtPurchase());
             itemDTO.setTotal(item.getPriceAtPurchase()

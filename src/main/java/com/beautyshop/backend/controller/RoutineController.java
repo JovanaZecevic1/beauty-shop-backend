@@ -29,8 +29,9 @@ public class RoutineController {
     @PostMapping
     public ResponseEntity<RoutineDTO> createRoutine(
             @AuthenticationPrincipal User user,
-            @RequestParam String name) {
-        return ResponseEntity.ok(routineService.createRoutine(user.getId(), name));
+            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "Morning") String routineType) {
+        return ResponseEntity.ok(routineService.createRoutine(user.getId(), name, routineType));
     }
 
     @PostMapping("/{routineId}/add-product")
@@ -65,7 +66,8 @@ public class RoutineController {
     @PutMapping("/{routineId}")
     public ResponseEntity<RoutineDTO> updateRoutine(
             @PathVariable Long routineId,
-            @RequestParam String name) {
-        return ResponseEntity.ok(routineService.updateRoutine(routineId, name));
+            @RequestParam String name,
+            @RequestParam(required = false) String routineType) {
+        return ResponseEntity.ok(routineService.updateRoutine(routineId, name, routineType));
     }
 }
